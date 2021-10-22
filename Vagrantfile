@@ -12,6 +12,8 @@ Vagrant.configure("2") do |config|
   config.vm.define "ci-server" do |ci_server|
     ci_server.vm.network "private_network", ip: '192.168.33.61'
     ci_server.vm.hostname = "ci-server"
+    ci_server.vm.provision :file, source:"./docker/docker-compose.ci.yml", destination:"/home/vagrant/docker-compose.yml"
+    ci_server.vm.provision :docker_compose, yml:"/home/vagrant/docker-compose.yml", run:"always"
   end
 
   config.vm.define "server-2" do |server2|
