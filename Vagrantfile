@@ -18,7 +18,6 @@ Vagrant.configure("2") do |config|
     server2.vm.network "private_network", ip: '192.168.33.62'
     server2.vm.hostname = "server-2"
     server2.vm.provision :docker_compose, yml: "/vagrant/MachineLearning/docker-compose.yml", rebuild: true, run: "always"
-
   end
 
 end
