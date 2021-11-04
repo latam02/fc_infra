@@ -1,0 +1,61 @@
+version: '3.7'
+services:
+  gocd_server:
+    image: gocd/gocd-server:v20.10.0
+    container_name: gocd_server
+    restart: always
+    ports:
+      - "8153:8153"
+      - "8154:8154"
+    volumes:
+      - godata_server:/godata
+      - go_server:/home/go
+
+  gocd_agent_centos:
+    image: gocd/gocd-agent-centos-7:v20.10.0
+    container_name: gocd_agent_centos
+    restart: always
+    depends_on: 
+      - gocd_server
+    environment: 
+      - GO_SERVER_URL=http://gocd_server:8153/go
+      - AGENT_AUTO_REGISTER_KEY=4ed17ca4-a5f0-4300-989d-b344e628cec6
+      - AGENT_AUTO_REGISTER_RESOURCES=centos
+      - AGENT_AUTO_REGISTER_HOSTNAME=gocd_agent_centos
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  gocd_agent_ubuntu:
+    image: gocd/gocd-agent-ubuntu-16.04:v20.10.0
+    container_name: gocd_agent_ubuntu
+    restart: always
+    depends_on: 
+      - gocd_server
+    environment: 
+      - GO_SERVER_URL=http://gocd_server:8153/go
+      - AGENT_AUTO_REGISTER_KEY=4ed17ca4-a5f0-4300-989d-b344e628cec6
+      - AGENT_AUTO_REGISTER_RESOURCES=ubuntu
+      - AGENT_AUTO_REGISTER_HOSTNAME=gocd_agent_ubuntu
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  gocd_agent_docker:
+    image: gocd/gocd-agent-docker-dind:v20.10.0
+    container_name: gocd_agent_docker
+    restart: always
+    depends_on: 
+      - gocd_server
+    environment: 
+      - GO_SERVER_URL=http://gocd_server:8153/go
+      - AGENT_AUTO_REGISTER_KEY=4ed17ca4-a5f0-4300-989d-b344e628cec6
+      - AGENT_AUTO_REGISTER_RESOURCES=docker
+      - AGENT_AUTO_REGISTER_HOSTNAME=gocd_agent_docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
+
+volumes:
+  godata_server:
+    name: godata_server
+  go_server:
+    name: go_server

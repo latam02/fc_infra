@@ -2,7 +2,8 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/bionic64"
   config.vm.boot_timeout = 1200
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "1024"
+    vb.memory = "6144"
+    vb.cpus = "4"
   end
 
   #configure provisioners on tha machine
@@ -14,12 +15,15 @@ Vagrant.configure("2") do |config|
     ci_server.vm.hostname = "ci-server"
     ci_server.vm.provision :file, source:"./docker/docker-compose.ci.yml", destination:"/home/vagrant/docker-compose.yml"
     ci_server.vm.provision :docker_compose, yml:"/home/vagrant/docker-compose.yml", run:"always"
+    ci_server.vm.provision :shell, inline: "sudo chmod 777 /var/run/docker.sock"
   end
 
-  config.vm.define "server-2" do |server2|
-    server2.vm.network "private_network", ip: '192.168.33.62'
-    server2.vm.hostname = "server-2"
-    server2.vm.provision :docker_compose, yml: "/vagrant/MachineLearning/docker-compose.yml", rebuild: true, run: "always"
+  config.vm.define "cd-server" do |cd_server|
+    cd_server.vm.network "private_network", ip: '192.168.33.62'
+    cd_server.vm.hostname = "cd-server"
+    cd_server.vm.provision :file, source:"./docker/docker-compose.cd.yml", destination:"/home/vagrant/docker-compose.yml"
+    cd_server.vm.provision :docker_compose, yml:"/home/vagrant/docker-compose.yml", run:"always"
+    cd_server.vm.provision :shell, inline: "sudo chmod 777 /var/run/docker.sock"
   end
 
 end
